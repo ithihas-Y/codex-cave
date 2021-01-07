@@ -34,9 +34,8 @@ contract VaccineTracker{
     
     address payable owner;
     Vaccine[] public vaccine;
-    uint256[] public UnAssignedV;
-    uint256[] public AssignedV;
-    Location[] public points;
+    uint256 public Vcount; 
+    uint256[] public Temp;
     
     mapping(uint256 => Vaccine) public details;
     mapping(address =>Distributor) public Authdistributors;
@@ -45,6 +44,7 @@ contract VaccineTracker{
     
     constructor(){
         owner = msg.sender;
+        Vcount =0;
     }
     
     modifier OnlyOwner{
@@ -71,9 +71,9 @@ contract VaccineTracker{
     int8 lat,int8 long,uint256 temp)
     public {
         if(!details[id].initialised){
+            Vcount++;
             details[id] = Vaccine(name,manufacturer,id,expDate,true,false,msg.sender,lat,long,temp,0);
             vaccine.push(details[id]);
-            UnAssignedV.push(id);
             history[id].push(Location(lat,long));
         }else{revert();}
     }
@@ -86,30 +86,25 @@ contract VaccineTracker{
         history[VID].push(Location(newlat,newlong));
     }
     
-    function RequestVaccine(uint quantity) public OnlyDistributor returns(uint[] memory){
-        uint256 count =0;
-        if(quantity <= UnAssignedV.length){
-            while(count<quantity){
-                for(uint256 i=0;i <= quantity;i++){
+    function RequestVaccine(uint256 quantity) public OnlyDistributor returns(uint[] memory){
+        if(quantity <= Vcount){
+            uint256 count =0;
+            for(uint256 i=0;i < vaccine.length-1;i++){
+                while(count < quantity){
                     if(!vaccine[i].Assigned){
-                        AssignedV.push(vaccine[i].ID);
-                        delete UnAssignedV[i];
                         vaccine[i].Assigned = true;
                         vaccine[i].CurrentDistributor = msg.sender;
                         inventory[msg.sender].push(vaccine[i].ID);
                         count++;
+                        Vcount--;
                     }
-                    else if(vaccine[i].Assigned == false){
+                    else{
                         i++;
                     }
                 }
-            }
-        }else{revert();}
+                }
+        }else revert();
         return inventory[msg.sender];
-    }
-    
-    function lengths() public view returns (uint256,uint256) {
-        return (UnAssignedV.length,AssignedV.length);
     }
     
     
