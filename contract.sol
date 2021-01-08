@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 contract VaccineTracker{
@@ -31,8 +31,8 @@ contract VaccineTracker{
     
     event locationUpdated(Location[]);
     
-    address payable owner;
-    Vaccine[] public vaccine;
+    address payable _owner;
+    Vaccine[] vaccine;
     uint256 public Vcount; 
     uint256[] public Temp;
     
@@ -42,12 +42,12 @@ contract VaccineTracker{
     mapping(address => uint256[]) public inventory;
     
     constructor(){
-        owner = msg.sender;
+        _owner = payable(msg.sender);
         Vcount =0;
     }
     
     modifier OnlyOwner{
-        require(msg.sender == owner);
+        require(msg.sender == _owner);
         _;
     }
     
@@ -112,7 +112,7 @@ contract VaccineTracker{
     
     
     function withdraw() public payable OnlyOwner{
-        owner.transfer(address(this).balance);
+        _owner.transfer(address(this).balance);
     }
     
 }
