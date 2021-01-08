@@ -22,7 +22,6 @@ contract VaccineTracker{
         string Name; 
         bool authorised;
         address ID;
-        Vaccine[] stock;
     }
     
     struct Location{
@@ -78,7 +77,7 @@ contract VaccineTracker{
         }else{revert();}
     }
     
-    function travelHistory(uint256 idd) public{
+    function travelHistory(uint256 idd)  public{
         emit locationUpdated(history[idd]);
     }
     
@@ -105,6 +104,10 @@ contract VaccineTracker{
                 }
         }else revert();
         return inventory[msg.sender];
+    }
+    
+    function returnInventory(address Aid) public view returns (uint256[] memory){
+        return inventory[Aid];
     }
     
     
